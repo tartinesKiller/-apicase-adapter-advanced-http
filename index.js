@@ -96,21 +96,22 @@ export default {
             throw err;
         };
 
-        return new Promise(async (resolve, reject) => {
-            try {
-                window.cordova.plugin.http.setDataSerializer("json");
-                window.cordova.plugin.http.sendRequest(payload.url, payload.options, resp => {
-                    done(resp).then(res => resolve(res));
-                }, err => {
-                    reject(err);
-                });
-            } catch (err) {
+        const res = new Promise(async (resolve, reject) => {
+            window.cordova.plugin.http.setDataSerializer("json");
+            window.cordova.plugin.http.sendRequest(payload.url, payload.options, resp => {
+                resolve(resp);
+            }, err => {
+                resolve(err);
+            });
+        });
+        return res
+            .then(done)
+            .catch(function (err) {
                 fail(err);
                 if (err instanceof Error && err.name !== "AbortError") {
                     throw err;
                 }
-            }
-        });
+            });
     },
 
     convert (payload) {
